@@ -1,37 +1,25 @@
 #!/usr/bin/env python3
 import argparse
-import json
 import os
 import sys
 import urllib.request
-import urllib.error
 from pathlib import Path
+from xai_sdk import Client
 
 def generate_image(api_key, prompt, model, out_path):
-    url = "https://api.x.ai/v1/images/generations"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": model,
-        "prompt": prompt
-    }
-
-    req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST")
-    
     try:
-        with urllib.request.urlopen(req) as response:
-            res_data = json.loads(response.read().decode("utf-8"))
-            image_url = res_data["data"][0]["url"]
-            
-            # Download the image
-            urllib.request.urlretrieve(image_url, out_path)
-            print(f"MEDIA:{out_path}")
-            return True
-    except urllib.error.HTTPError as e:
-        print(f"Error: {e.code} - {e.read().decode('utf-8')}", file=sys.stderr)
-        return False
+        client = Client(api_key=api_key)
+        response = client.image.sample(
+            model=model,
+            prompt=prompt,
+            image_format="url"
+        )
+        image_url = response.url
+        
+        # Download the image
+        urllib.request.urlretrieve(image_url, out_path)
+        print(f"MEDIA:{out_path}")
+        return True
     except Exception as e:
         print(f"Failed: {str(e)}", file=sys.stderr)
         return False
