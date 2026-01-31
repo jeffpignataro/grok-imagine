@@ -15,9 +15,7 @@ def generate_image(api_key, prompt, model, out_path):
     }
     data = {
         "model": model,
-        "prompt": prompt,
-        "n": 1,
-        "response_format": "url"
+        "prompt": prompt
     }
 
     req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST")
